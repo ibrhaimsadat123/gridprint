@@ -1,0 +1,106 @@
+# GridPrint: two-device comparison
+# Do two recordings made at the same time, in different places, share the same hum wobble?
+# If yes, the hum is the power grid (the whole grid shares one frequency).
+#
+# Usage:  python compare.py laptop1 laptop2
+
+import sys
+import os
+import numpy as np
+from scipy.signal import stft, medfilt
+import matplotlib.pyplot as plt
+
+FS = 8000          # must match hum_test.py
+CENTRE = 100       # the 100 Hz harmonic: our working channel (50 Hz is dead on laptop mics)
+
+
+def hum_trace(audio, centre=CENTRE, window_s=4):
+    """Track the exact hum frequency near `centre` Hz, once per second."""
+    f, t, Z = stft(audio, fs=FS, nperseg=FS * window_s, noverlap=FS * (window_s - 1))
+    band = (f > centre - 1) & (f < centre + 1)
+    fb, mag = f[band], np.abs(Z[band])
+    step = fb[1] - fb[0]
+    trace = []
+    for col in mag.T:
+        i = np.argmax(col)
+        if 0 < i < len(col) - 1:
+            a, b, c = np.log(col[i - 1:i + 2] + 1e-12)
+            shift = 0.5 * (a - c) / (a - 2 * b + c)
+        else:
+            shift = 0
+        trace.append(fb[i] + shift * step)
+    trace = np.array(trace) * 50 / centre        # scale back to "grid Hz" (around 50)
+    return t, medfilt(trace, 5)                  # median filter knocks out one-off noises (flushes, talking)
+
+
+def load(name):
+    audio = np.load(name + ".npy")
+    start = 0.0
+    if os.path.exists(name + "_start.txt"):
+        start = float(open(name + "_start.txt").read())
+    else:
+        print(f"(no {name}_start.txt found, assuming it started at the same moment)")
+    return audio, start
+
+
+def main(name1, name2):
+    a1, s1 = load(name1)
+    a2, s2 = load(name2)
+    t1, h1 = hum_trace(a1)
+    t2, h2 = hum_trace(a2)
+
+    # put both traces on one shared clock (seconds since the earlier start)
+    t0 = min(s1, s2)
+    t1 = t1 + (s1 - t0)
+    t2 = t2 + (s2 - t0)
+    print(f"Start time difference: {abs(s1 - s2):.2f} s")
+
+    # keep only the overlap, resampled once per second
+    lo, hi = max(t1[0], t2[0]), min(t1[-1], t2[-1])
+    if hi - lo < 20:
+        sys.exit("The recordings barely overlap in time. Did you start them together?")
+    grid_t = np.arange(np.ceil(lo), np.floor(hi))
+    x = np.interp(grid_t, t1, h1)
+    y = np.interp(grid_t, t2, h2)
+
+    # how similar is the wobble? (remove each device's average first)
+    xc, yc = x - x.mean(), y - y.mean()
+    r = np.corrcoef(xc, yc)[0, 1]
+
+    # check small time offsets too, in case the clocks were a few seconds off
+    best_lag, best_r = 0, r
+    for lag in range(-5, 6):
+        if lag == 0:
+            continue
+        xs, ys = (xc[lag:], yc[:-lag]) if lag > 0 else (xc[:lag], yc[-lag:])
+        rl = np.corrcoef(xs, ys)[0, 1]
+        if rl > best_r:
+            best_lag, best_r = lag, rl
+
+    print(f"Average hum: {name1} {x.mean():.3f} Hz, {name2} {y.mean():.3f} Hz")
+    print(f"Correlation of the wobble: {r:.2f}  (best {best_r:.2f} at a {best_lag:+d} s shift)")
+    if best_r > 0.7:
+        print(">>> STRONG MATCH: both devices heard the same grid. GridPrint works.")
+    elif best_r > 0.4:
+        print(">>> Partial match: promising, but record longer or somewhere quieter.")
+    else:
+        print(">>> No match: the hum on at least one device isn't the grid (or is drowned in noise).")
+
+    fig, ax = plt.subplots(2, 1, figsize=(11, 7))
+    ax[0].plot(grid_t, x, "o-", label=name1)
+    ax[0].plot(grid_t, y, "o-", label=name2)
+    ax[0].set_title("Grid hum on both devices (Hz)")
+    ax[0].set_ylabel("Hz"); ax[0].legend()
+    ax[1].plot(grid_t, xc, label=name1 + " (average removed)")
+    ax[1].plot(grid_t, yc, label=name2 + " (average removed)")
+    ax[1].set_title(f"Do they wobble together?  correlation = {best_r:.2f}")
+    ax[1].set_xlabel("seconds"); ax[1].legend()
+    plt.tight_layout()
+    plt.savefig(f"compare_{name1}_{name2}.png")
+    plt.show()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        sys.exit("Usage: python compare.py laptop1 laptop2")
+    main(sys.argv[1], sys.argv[2])
