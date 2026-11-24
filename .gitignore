@@ -1,0 +1,6 @@
+# Raw audio recordings: large, and they capture private room audio
+*.npy
+*.wav
+
+# Python cache
+__pycache__/
