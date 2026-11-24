@@ -14,10 +14,10 @@ FS = 8000          # must match hum_test.py
 CENTRE = 100       # the 100 Hz harmonic: our working channel (50 Hz is dead on laptop mics)
 
 
-def hum_trace(audio, centre=CENTRE, window_s=4):
+def hum_trace(audio, centre=CENTRE, window_s=4, half=3):
     """Track the exact hum frequency near `centre` Hz, once per second."""
     f, t, Z = stft(audio, fs=FS, nperseg=FS * window_s, noverlap=FS * (window_s - 1))
-    band = (f > centre - 1) & (f < centre + 1)
+    band = (f > centre - half) & (f < centre + half)   # +/-3 Hz: wide enough that the trace never hits the edge
     fb, mag = f[band], np.abs(Z[band])
     step = fb[1] - fb[0]
     trace = []
@@ -79,6 +79,11 @@ def main(name1, name2):
 
     print(f"Average hum: {name1} {x.mean():.3f} Hz, {name2} {y.mean():.3f} Hz")
     print(f"Correlation of the wobble: {r:.2f}  (best {best_r:.2f} at a {best_lag:+d} s shift)")
+    # second-by-second check: do the small wiggles match, not just the slow trend?
+    dr = np.corrcoef(np.diff(xc), np.diff(yc))[0, 1]
+    print(f"Wiggle match (second-by-second changes): {dr:.2f}  (1.0 = identical, 0 = unrelated)")
+    print("Note: a high correlation with a low wiggle match means the devices share the slow drift,")
+    print("but one of them is too noisy to see the fine detail. Record somewhere quieter / closer to wiring.")
     if best_r > 0.7:
         print(">>> STRONG MATCH: both devices heard the same grid. GridPrint works.")
     elif best_r > 0.4:
