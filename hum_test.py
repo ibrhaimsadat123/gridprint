@@ -1,6 +1,7 @@
 # GridPrint: hum test
 # Record audio, then look for the power grid's hum at 50 Hz (and its echo at 100 Hz)
 
+import time
 import numpy as np
 import sounddevice as sd
 from scipy.signal import stft
@@ -11,10 +12,15 @@ SECONDS = 120     # how long to record
 
 # ---------- 1. RECORD ----------
 print(f"Recording {SECONDS} seconds... keep the laptop PLUGGED IN and the room quiet")
+start = time.time()   # exact start moment, so two devices can be lined up later
 audio = sd.rec(int(FS * SECONDS), samplerate=FS, channels=1, dtype="float64")
 sd.wait()
 audio = audio[:, 0]
-np.save(input("Name this recording (e.g. plugged / unplugged): ") + ".npy", audio)
+name = input("Name this recording (e.g. laptop1 / laptop2): ")
+np.save(name + ".npy", audio)
+with open(name + "_start.txt", "w") as f:
+    f.write(str(start))
+print(f"Saved {name}.npy (started at {time.ctime(start)})")
 print("Done recording")
 
 # ---------- 2. WHOLE SPECTRUM: is there a spike at 50 or 100 Hz? ----------
