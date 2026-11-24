@@ -8,7 +8,7 @@ Built for [Hack Club Crossroads](https://crossroads.hackclub.com).
 
 ## Status
 
-Phase 0: proving a cheap laptop mic can hear the grid at all.
+Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different floors heard the same drifting frequency at the same time.
 
 ## Dev journal
 
@@ -23,11 +23,26 @@ Phase 0: proving a cheap laptop mic can hear the grid at all.
 
 **Next:** record on two devices in different places at the same moment. If both hum traces rise and fall together, it's the grid.
 
+### Day 2 (25 Nov 2026): two laptops, two floors
+
+- Added a start timestamp to every recording so recordings from different devices can be lined up.
+- Wrote `compare.py`: tracks the 100 Hz hum on two recordings, aligns them in time, and scores how closely they move together.
+- **Sanity check first:** the plugged and unplugged recordings from Day 1 (made minutes apart) scored 0.04. No match, as expected. The script doesn't just say yes.
+- **The experiment:** my laptop (`laptop1`) in my hostel room and a friend's laptop (`laptop2`) on the floor above, both plugged in, recording at the same time for 2 minutes. His started 15.8 s later; the timestamps line them up.
+- **Result:** both laptops heard the same frequency, **50.308 Hz vs 50.301 Hz**, and both climbed together from about 50.28 to 50.36 Hz over the two minutes. Correlation **0.83**. Recordings made minutes apart had given 50.02 and 50.2, so matching numbers on two separate laptops at the same moment points to one shared source: the grid.
+- **Bug caught:** the first run said 0.96, but that was inflated. The search window was only +/-1 Hz, so when the grid rose above 50.375 Hz, both traces got stuck at the window edge and looked identical. Widened it to +/-3 Hz.
+- **Not there yet:** the second-by-second wiggles don't match (wiggle score about 0). His signal was about 3x weaker than mine, so his fine detail is mostly noise. The devices agree on the slow drift, not yet on the details. Added a "wiggle match" check to `compare.py` so this can't hide again.
+
+**Next:**
+- Rematch with the weaker laptop right next to a charger or tube light, recording 5 minutes instead of 2. Goal: wiggle match above 0.5.
+- Record in Lahore and Islamabad at the same moment. Same national grid, about 300 km apart. If the same drift shows up in both cities, nothing local can explain it.
+
 ## Run it
 
 ```
 python -m pip install numpy scipy matplotlib sounddevice
 python hum_test.py
+python compare.py laptop1 laptop2
 ```
 
 Keep the room quiet while it records.
