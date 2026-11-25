@@ -8,7 +8,7 @@ Built for [Hack Club Crossroads](https://crossroads.hackclub.com).
 
 ## Status
 
-Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different floors heard the same drifting frequency at the same time.
+Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different floors tracked the same grid frequency for 5 minutes (correlation 0.99).
 
 ## Dev journal
 
@@ -36,6 +36,22 @@ Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different 
 **Next:**
 - Rematch with the weaker laptop right next to a charger or tube light, recording 5 minutes instead of 2. Goal: wiggle match above 0.5.
 - Record in Lahore and Islamabad at the same moment. Same national grid, about 300 km apart. If the same drift shows up in both cities, nothing local can explain it.
+
+### Day 3 (26 Nov 2026): grid match confirmed
+
+![Two laptops, two floors, same grid](compare_laptop1_b_laptop2_b.png)
+
+- Rematch, with three changes: recordings of 5 minutes instead of 2, charger brick next to each laptop's mic, and Audio enhancements off on both.
+- **First result: no match (0.02).** Looked like a failure. The raw recordings showed otherwise: `compare.py` measured the hum in 4-second chunks, and with a faint signal each chunk was mostly noise.
+- **Fix: 16-second chunks.** Longer chunks let the hum build up over the noise. Also a stronger median filter, and the wiggle check now compares changes every 8 seconds.
+- **Result: average hum 50.336 Hz vs 50.335 Hz, correlation 0.96 to 0.99, wiggle match 0.79.** Both laptops trace the same path for 5 minutes: the climb to 50.36, the dip at ~145 s, the bump at ~170 s, the final climb to 50.39.
+- **Fake-out check:** sliding one recording 30 to 120 seconds out of line drops the correlation to 0.04 at most. The match only exists when the timing is real.
+- Day 2's pair, re-analysed with 16-second chunks, scores 0.99 too.
+- **The grid caught a clock error:** the best match is always at a 4-second shift. My two laptops' clocks are about 4 seconds apart.
+- **Brick next to the mic made my signal weaker,** about 3x versus Day 2 without it. One run only, but it hints the hum enters mostly through the charging cable, not the brick's magnetic field. To test: brick near vs far.
+- **Device tones vs grid:** the second laptop shows tones at exactly 200.000, 300.000 and 400.000 Hz. Round numbers that never move are the laptop's own electronics. The grid never sits exactly on 50.000.
+
+**Next:** brick near vs far test, Lahore + Islamabad at the same moment, and an extractor that works on any audio or video file.
 
 ## Run it
 

@@ -14,7 +14,7 @@ FS = 8000          # must match hum_test.py
 CENTRE = 100       # the 100 Hz harmonic: our working channel (50 Hz is dead on laptop mics)
 
 
-def hum_trace(audio, centre=CENTRE, window_s=4, half=3):
+def hum_trace(audio, centre=CENTRE, window_s=16, half=3):
     """Track the exact hum frequency near `centre` Hz, once per second."""
     f, t, Z = stft(audio, fs=FS, nperseg=FS * window_s, noverlap=FS * (window_s - 1))
     band = (f > centre - half) & (f < centre + half)   # +/-3 Hz: wide enough that the trace never hits the edge
@@ -30,7 +30,7 @@ def hum_trace(audio, centre=CENTRE, window_s=4, half=3):
             shift = 0
         trace.append(fb[i] + shift * step)
     trace = np.array(trace) * 50 / centre        # scale back to "grid Hz" (around 50)
-    return t, medfilt(trace, 5)                  # median filter knocks out one-off noises (flushes, talking)
+    return t, medfilt(trace, 9)                  # median filter knocks out one-off noises (flushes, talking)
 
 
 def load(name):
@@ -80,7 +80,7 @@ def main(name1, name2):
     print(f"Average hum: {name1} {x.mean():.3f} Hz, {name2} {y.mean():.3f} Hz")
     print(f"Correlation of the wobble: {r:.2f}  (best {best_r:.2f} at a {best_lag:+d} s shift)")
     # second-by-second check: do the small wiggles match, not just the slow trend?
-    dr = np.corrcoef(np.diff(xc), np.diff(yc))[0, 1]
+    dr = np.corrcoef(np.diff(xc[::8]), np.diff(yc[::8]))[0, 1]   # compare changes every 8 s, not every 1 s
     print(f"Wiggle match (second-by-second changes): {dr:.2f}  (1.0 = identical, 0 = unrelated)")
     print("Note: a high correlation with a low wiggle match means the devices share the slow drift,")
     print("but one of them is too noisy to see the fine detail. Record somewhere quieter / closer to wiring.")
