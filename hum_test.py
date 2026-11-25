@@ -8,7 +8,7 @@ from scipy.signal import stft
 import matplotlib.pyplot as plt
 
 FS = 8000        # samples per second (plenty for a 50 Hz hum)
-SECONDS = 120     # how long to record
+SECONDS = 300     # how long to record
 
 # ---------- 1. RECORD ----------
 print(f"Recording {SECONDS} seconds... keep the laptop PLUGGED IN and the room quiet")
