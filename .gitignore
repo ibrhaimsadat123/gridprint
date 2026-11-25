@@ -7,3 +7,11 @@ __pycache__/
 *_start.txt
 hum_test.png
 *_extract.png
+
+# Phone media used for testing (private)
+*.ogg
+*.opus
+*.mp4
+*.MOV
+*.mov
+*.m4a
