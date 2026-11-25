@@ -7,34 +7,12 @@
 import sys
 import os
 import numpy as np
-from scipy.signal import stft, medfilt
 import matplotlib.pyplot as plt
-
-FS = 8000          # must match hum_test.py
-CENTRE = 100       # the 100 Hz harmonic: our working channel (50 Hz is dead on laptop mics)
-
-
-def hum_trace(audio, centre=CENTRE, window_s=16, half=3):
-    """Track the exact hum frequency near `centre` Hz, once per second."""
-    f, t, Z = stft(audio, fs=FS, nperseg=FS * window_s, noverlap=FS * (window_s - 1))
-    band = (f > centre - half) & (f < centre + half)   # +/-3 Hz: wide enough that the trace never hits the edge
-    fb, mag = f[band], np.abs(Z[band])
-    step = fb[1] - fb[0]
-    trace = []
-    for col in mag.T:
-        i = np.argmax(col)
-        if 0 < i < len(col) - 1:
-            a, b, c = np.log(col[i - 1:i + 2] + 1e-12)
-            shift = 0.5 * (a - c) / (a - 2 * b + c)
-        else:
-            shift = 0
-        trace.append(fb[i] + shift * step)
-    trace = np.array(trace) * 50 / centre        # scale back to "grid Hz" (around 50)
-    return t, medfilt(trace, 9)                  # median filter knocks out one-off noises (flushes, talking)
+from gridprint_core import load_audio, hum_trace
 
 
 def load(name):
-    audio = np.load(name + ".npy")
+    audio = load_audio(name + ".npy")
     start = 0.0
     if os.path.exists(name + "_start.txt"):
         start = float(open(name + "_start.txt").read())
@@ -46,8 +24,8 @@ def load(name):
 def main(name1, name2):
     a1, s1 = load(name1)
     a2, s2 = load(name2)
-    t1, h1 = hum_trace(a1)
-    t2, h2 = hum_trace(a2)
+    t1, h1, _ = hum_trace(a1)
+    t2, h2, _ = hum_trace(a2)
 
     # put both traces on one shared clock (seconds since the earlier start)
     t0 = min(s1, s2)

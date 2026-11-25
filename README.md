@@ -53,12 +53,20 @@ Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different 
 
 **Next:** brick near vs far test, Lahore + Islamabad at the same moment, and an extractor that works on any audio or video file.
 
+## The tools
+
+- `hum_test.py`: record from the mic and plot the hum.
+- `compare.py`: do two recordings made at the same moment share the same grid wobble?
+- `extract.py`: is the grid hiding in this file? Works on WhatsApp voice notes, phone videos, .mp3, .m4a, .mp4 and more. Checks five grid echoes (100 to 300 Hz) and gives a verdict: strong, weak or none.
+- `gridprint_core.py`: the shared engine (loading any file, tracking the hum, judging it).
+
 ## Run it
 
 ```
-python -m pip install numpy scipy matplotlib sounddevice
+python -m pip install numpy scipy matplotlib sounddevice imageio-ffmpeg
 python hum_test.py
 python compare.py laptop1 laptop2
+python extract.py any_audio_or_video.mp4
 ```
 
 Keep the room quiet while it records.
