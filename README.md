@@ -53,6 +53,31 @@ Phase 0: proving a cheap laptop mic can hear the grid. Two laptops on different 
 
 **Next:** brick near vs far test, Lahore + Islamabad at the same moment, and an extractor that works on any audio or video file.
 
+### Day 4 (26 Nov 2026, ~3 AM): real phone recordings
+
+Built `extract.py` (any audio or video file in, grid verdict out) and ran it on 8 everyday iPhone recordings:
+
+| Recording | Result |
+|---|---|
+| WhatsApp voice note, quiet room | no grid |
+| WhatsApp voice note, phone charging | no grid |
+| Video of a lit wall, sent via WhatsApp | **strong grid** |
+| Same video, original .MOV | **strong grid**, identical |
+| Video of me talking (WhatsApp and original) | no grid |
+| Voice note on the roof, away from wiring | weak tone, probably not the grid |
+| Voice note next to the rooftop solar inverter | weak, grid-like |
+
+- **Quiet phone video works.** Recorded at 3:08 AM: the 200 Hz and 300 Hz echoes independently trace the same path (49.70 to 49.95 to 49.88 Hz). Two echoes agreeing in detail is internal proof it's the grid. The grid had dropped to about 49.9 Hz, from about 50.33 at 1:30 AM.
+- **WhatsApp compression doesn't destroy it.** The original and the compressed video gave identical results.
+- **Voice notes are useless**, even with the phone charging. Their noise suppression is built for speech and wipes the hum.
+- **Speech drowns it.** Same spot, same light, but talking: no grid. Biggest engineering problem for real-world video.
+- **The roof isn't clean.** A steady tone near 50.3 Hz, present before and after a passing truck, that doesn't match the inverter's 49.90 Hz. Probably a nearby device, not the grid. Outdoors doesn't mean silent.
+- **The rooftop inverter (GoodWe hybrid, grid-tied)** held a steady 49.90 Hz, consistent with the grid at that hour.
+
+**Lesson:** a hum only counts as the grid if it matches a reference log recorded at the same moment. WhatsApp voice notes also strip the recording time, so they can't be lined up afterwards.
+
+**Next:** reference-station test (laptop logs the grid while the phone records), then work on speech: analysing gaps between words, filtering voice harmonics, and reading the light flicker in the picture.
+
 ## The tools
 
 - `hum_test.py`: record from the mic and plot the hum.
