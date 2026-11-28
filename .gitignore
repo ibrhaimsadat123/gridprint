@@ -15,3 +15,9 @@ hum_test.png
 *.MOV
 *.mov
 *.m4a
+
+# station secrets (Wi-Fi password, server token)
+secrets.h
+
+# backups and local copies
+*.bak
