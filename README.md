@@ -42,6 +42,8 @@ mains socket -> 230/12 V transformer -> PC817 optocoupler -> Arduino UNO (ATmega
 - **Plugged vs unplugged:** both recordings showed the 100 Hz tone. Plugged sat around 50.00 Hz (after halving), unplugged drifted smoothly from about 50.3 down to 50.15 Hz. The hum reaches the mic through the air from the room's wiring, not only through the charger, so unplugging doesn't remove it.
 - A fixed spike near 95 Hz appears in both recordings and never moves. Probably a fan or motor, not the grid.
 
+**Full handover context for contributors and new sessions: [PROJECT.md](PROJECT.md).**
+
 **Next:** record on two devices in different places at the same moment. If both hum traces rise and fall together, it's the grid.
 
 ### Day 2 (25 Nov 2026): two laptops, two floors
@@ -53,6 +55,8 @@ mains socket -> 230/12 V transformer -> PC817 optocoupler -> Arduino UNO (ATmega
 - **Result:** both laptops heard the same frequency, **50.308 Hz vs 50.301 Hz**, and both climbed together from about 50.28 to 50.36 Hz over the two minutes. Correlation **0.83**. Recordings made minutes apart had given 50.02 and 50.2, so matching numbers on two separate laptops at the same moment points to one shared source: the grid.
 - **Bug caught:** the first run said 0.96, but that was inflated. The search window was only +/-1 Hz, so when the grid rose above 50.375 Hz, both traces got stuck at the window edge and looked identical. Widened it to +/-3 Hz.
 - **Not there yet:** the second-by-second wiggles don't match (wiggle score about 0). His signal was about 3x weaker than mine, so his fine detail is mostly noise. The devices agree on the slow drift, not yet on the details. Added a "wiggle match" check to `compare.py` so this can't hide again.
+
+**Full handover context for contributors and new sessions: [PROJECT.md](PROJECT.md).**
 
 **Next:**
 - Rematch with the weaker laptop right next to a charger or tube light, recording 5 minutes instead of 2. Goal: wiggle match above 0.5.
@@ -71,6 +75,8 @@ mains socket -> 230/12 V transformer -> PC817 optocoupler -> Arduino UNO (ATmega
 - **The grid caught a clock error:** the best match is always at a 4-second shift. My two laptops' clocks are about 4 seconds apart.
 - **Brick next to the mic made my signal weaker,** about 3x versus Day 2 without it. One run only, but it hints the hum enters mostly through the charging cable, not the brick's magnetic field. To test: brick near vs far.
 - **Device tones vs grid:** the second laptop shows tones at exactly 200.000, 300.000 and 400.000 Hz. Round numbers that never move are the laptop's own electronics. The grid never sits exactly on 50.000.
+
+**Full handover context for contributors and new sessions: [PROJECT.md](PROJECT.md).**
 
 **Next:** brick near vs far test, Lahore + Islamabad at the same moment, and an extractor that works on any audio or video file.
 
@@ -96,6 +102,8 @@ Built `extract.py` (any audio or video file in, grid verdict out) and ran it on 
 - **The rooftop inverter (GoodWe hybrid, grid-tied)** held a steady 49.90 Hz, consistent with the grid at that hour.
 
 **Lesson:** a hum only counts as the grid if it matches a reference log recorded at the same moment. WhatsApp voice notes also strip the recording time, so they can't be lined up afterwards.
+
+**Full handover context for contributors and new sessions: [PROJECT.md](PROJECT.md).**
 
 **Next:** reference-station test (laptop logs the grid while the phone records), then work on speech: analysing gaps between words, filtering voice harmonics, and reading the light flicker in the picture.
 
