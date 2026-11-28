@@ -13,6 +13,14 @@ Built for [Hack Club Crossroads](https://crossroads.hackclub.com).
 - Phase 0 (done): a cheap laptop mic can hear the grid. Two laptops on different floors tracked the same frequency for 5 minutes (correlation 0.99), and quiet phone videos carry it too.
 - Phase 1 (live since 28 Nov 2026): a hardware reference station logs the "true" grid frequency, so any recording can be checked against it.
 
+![GridPrint explorer: one hour of Pakistan's grid frequency, 28 Nov 2026, with the 06:47 low of 49.49 Hz](docs/dashboard.png)
+
+*Real data from Station isb-01, 28 Nov 2026, 05:51 to 06:56 PKT. Hovering shows the exact moment: the grid fell to 49.49 Hz at 06:47.*
+
+| Live insight orb | AI report (excerpt) |
+|---|---|
+| ![Live insight orb](docs/orb.png) | ![AI report excerpt](docs/report.png) |
+
 ## How it fits together
 
 ```
